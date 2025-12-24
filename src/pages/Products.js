@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
@@ -20,15 +20,11 @@ const Products = () => {
   const { user, logout } = useAuth();
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const getAuthHeaders = () => ({
+  const getAuthHeaders = useCallback(() => ({
     Authorization: `Bearer ${localStorage.getItem('token')}`
-  });
+  }), []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/products`, {
         headers: getAuthHeaders()
@@ -43,7 +39,11 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE_URL, getAuthHeaders, logout]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

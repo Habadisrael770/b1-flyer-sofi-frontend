@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './Login.css';
 
@@ -15,6 +15,18 @@ const Login = () => {
 
   const { login, register, loginWithGoogle } = useAuth();
 
+  const handleGoogleResponse = useCallback(async (response) => {
+    setLoading(true);
+    setError('');
+    try {
+      await loginWithGoogle(response.credential);
+    } catch (err) {
+      setError('שגיאה בהתחברות עם Google');
+    } finally {
+      setLoading(false);
+    }
+  }, [loginWithGoogle]);
+
   // Load Google Sign-In script
   useEffect(() => {
     const script = document.createElement('script');
@@ -26,7 +38,7 @@ const Login = () => {
     script.onload = () => {
       if (window.google) {
         window.google.accounts.id.initialize({
-          client_id: '53868665211-5qksri7ikn3kpoomtdurbsapamorhjcr.apps.googleusercontent.com',
+          client_id: '538686652111-5qksri7ikn3kpoomtdurbsapamorhjcr.apps.googleusercontent.com',
           callback: handleGoogleResponse
         });
       }
@@ -37,19 +49,7 @@ const Login = () => {
         document.body.removeChild(script);
       }
     };
-  }, []);
-
-  const handleGoogleResponse = async (response) => {
-    setLoading(true);
-    setError('');
-    try {
-      await loginWithGoogle(response.credential);
-    } catch (err) {
-      setError('שגיאה בהתחברות עם Google');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [handleGoogleResponse]);
 
   const handleGoogleLogin = () => {
     if (window.google) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
@@ -22,16 +22,11 @@ const Flyers = () => {
   const { user, logout } = useAuth();
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  useEffect(() => {
-    fetchFlyers();
-    fetchProducts();
-  }, []);
-
-  const getAuthHeaders = () => ({
+  const getAuthHeaders = useCallback(() => ({
     Authorization: `Bearer ${localStorage.getItem('token')}`
-  });
+  }), []);
 
-  const fetchFlyers = async () => {
+  const fetchFlyers = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/flyers`, {
         headers: getAuthHeaders()
@@ -46,9 +41,9 @@ const Flyers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE_URL, getAuthHeaders, logout]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/products`, {
         headers: getAuthHeaders()
@@ -61,7 +56,12 @@ const Flyers = () => {
       }
       console.error('Failed to fetch products:', error);
     }
-  };
+  }, [API_BASE_URL, getAuthHeaders, logout]);
+
+  useEffect(() => {
+    fetchFlyers();
+    fetchProducts();
+  }, [fetchFlyers, fetchProducts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
