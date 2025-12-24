@@ -18,7 +18,6 @@ const Products = () => {
   });
 
   const { user, logout } = useAuth();
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   const getAuthHeaders = useCallback(() => ({
     Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -26,11 +25,14 @@ const Products = () => {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/products`, {
+      const response = await axios.get('/api/products', {
         headers: getAuthHeaders()
       });
-      setProducts(response.data);
+      // Handle both { data: [...] } and direct array responses
+      const productsData = response.data.data || response.data || [];
+      setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (error) {
+      console.error('Fetch products error:', error);
       if (error.response?.status === 401 || error.response?.status === 403) {
         logout();
         return;
@@ -39,7 +41,7 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, getAuthHeaders, logout]);
+  }, [getAuthHeaders, logout]);
 
   useEffect(() => {
     fetchProducts();
@@ -51,11 +53,11 @@ const Products = () => {
 
     try {
       if (editingProduct) {
-        await axios.put(`${API_BASE_URL}/api/products/${editingProduct._id}`, formData, {
+        await axios.put(`/api/products/${editingProduct.id || editingProduct._id}`, formData, {
           headers: getAuthHeaders()
         });
       } else {
-        await axios.post(`${API_BASE_URL}/api/products`, formData, {
+        await axios.post('/api/products', formData, {
           headers: getAuthHeaders()
         });
       }
@@ -75,7 +77,7 @@ const Products = () => {
     if (!window.confirm('האם אתה בטוח שברצונך למחוק את המוצר?')) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
+      await axios.delete(`/api/products/${id}`, {
         headers: getAuthHeaders()
       });
       fetchProducts();
@@ -91,12 +93,12 @@ const Products = () => {
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      barcode: product.barcode,
-      category: product.category,
-      imageUrl: product.imageUrl
+      name: product.name || '',
+      description: product.description || '',
+      price: product.price || '',
+      barcode: product.barcode || '',
+      category: product.category || '',
+      imageUrl: product.imageUrl || product.image || ''
     });
     setShowForm(true);
   };
@@ -121,44 +123,45 @@ const Products = () => {
     });
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div style={{padding: '50px', textAlign: 'center'}}>טוען...</div>;
 
   return (
-    <div className="products-container">
-      <div className="products-header">
+    <div className="products-container" style={{padding: '20px', maxWidth: '1200px', margin: '0 auto'}}>
+      <div className="products-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
         <h1>מוצרים</h1>
         <div className="user-info">
-          <span>שלום, {user?.firstName}</span>
-          <button onClick={logout} className="logout-btn">התנתקות</button>
+          <span style={{marginLeft: '10px'}}>שלום, {user?.name || user?.firstName || 'משתמש'}</span>
+          <button onClick={logout} style={{padding: '8px 16px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>התנתקות</button>
         </div>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div style={{background: '#fee', color: '#c33', padding: '10px', borderRadius: '5px', marginBottom: '20px'}}>{error}</div>}
 
-      <div className="products-actions">
+      <div className="products-actions" style={{marginBottom: '20px'}}>
         <button 
           onClick={() => setShowForm(!showForm)}
-          className="add-btn"
+          style={{padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}
         >
           {showForm ? 'בטל' : 'הוסף מוצר'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="product-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label>שם המוצר</label>
+        <form onSubmit={handleSubmit} style={{background: '#f8f9fa', padding: '20px', borderRadius: '10px', marginBottom: '20px'}}>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>שם המוצר</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
+                style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
               />
             </div>
-            <div className="form-group">
-              <label>מחיר</label>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>מחיר</label>
               <input
                 type="number"
                 step="0.01"
@@ -166,79 +169,84 @@ const Products = () => {
                 value={formData.price}
                 onChange={handleChange}
                 required
+                style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
               />
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>ברקוד</label>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px'}}>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>ברקוד</label>
               <input
                 type="text"
                 name="barcode"
                 value={formData.barcode}
                 onChange={handleChange}
+                style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
               />
             </div>
-            <div className="form-group">
-              <label>קטגוריה</label>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>קטגוריה</label>
               <input
                 type="text"
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
+                style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
               />
             </div>
           </div>
-          <div className="form-group">
-            <label>תיאור</label>
+          <div style={{marginTop: '15px'}}>
+            <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>תיאור</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows="3"
+              style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
             />
           </div>
-          <div className="form-group">
-            <label>כתובת תמונה</label>
+          <div style={{marginTop: '15px'}}>
+            <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>כתובת תמונה</label>
             <input
               type="url"
               name="imageUrl"
               value={formData.imageUrl}
               onChange={handleChange}
+              style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px'}}
             />
           </div>
-          <div className="form-actions">
-            <button type="submit">
+          <div style={{marginTop: '20px', display: 'flex', gap: '10px'}}>
+            <button type="submit" style={{padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>
               {editingProduct ? 'עדכן' : 'הוסף'}
             </button>
-            <button type="button" onClick={resetForm}>
+            <button type="button" onClick={resetForm} style={{padding: '10px 20px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>
               בטל
             </button>
           </div>
         </form>
       )}
 
-      <div className="products-grid">
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
         {products.map(product => (
-          <div key={product._id} className="product-card">
-            {product.imageUrl && (
-              <img src={product.imageUrl} alt={product.name} />
+          <div key={product.id || product._id} style={{background: 'white', borderRadius: '10px', padding: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+            {(product.imageUrl || product.image) && (
+              <img src={product.imageUrl || product.image} alt={product.name} style={{width: '100%', height: '150px', objectFit: 'cover', borderRadius: '5px'}} />
             )}
-            <h3>{product.name}</h3>
-            <p className="price">₪{product.price}</p>
-            {product.description && <p className="description">{product.description}</p>}
-            {product.barcode && <p className="barcode">ברקוד: {product.barcode}</p>}
-            {product.category && <p className="category">קטגוריה: {product.category}</p>}
-            <div className="product-actions">
-              <button onClick={() => handleEdit(product)}>עריכה</button>
-              <button onClick={() => handleDelete(product._id)}>מחיקה</button>
+            <h3 style={{margin: '10px 0'}}>{product.name}</h3>
+            <p style={{color: '#28a745', fontWeight: 'bold', fontSize: '1.2em'}}>₪{product.price}</p>
+            {product.description && <p style={{color: '#666', fontSize: '0.9em'}}>{product.description}</p>}
+            {product.barcode && <p style={{color: '#999', fontSize: '0.8em'}}>ברקוד: {product.barcode}</p>}
+            {product.category && <p style={{color: '#999', fontSize: '0.8em'}}>קטגוריה: {product.category}</p>}
+            <div style={{marginTop: '10px', display: 'flex', gap: '10px'}}>
+              <button onClick={() => handleEdit(product)} style={{flex: 1, padding: '8px', background: '#ffc107', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>עריכה</button>
+              <button onClick={() => handleDelete(product.id || product._id)} style={{flex: 1, padding: '8px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>מחיקה</button>
             </div>
           </div>
         ))}
       </div>
 
       {products.length === 0 && (
-        <div className="empty-state">
+        <div style={{textAlign: 'center', padding: '50px', color: '#666'}}>
           <p>אין מוצרים עדיין. הוסף את המוצר הראשון שלך!</p>
         </div>
       )}
