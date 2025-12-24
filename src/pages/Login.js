@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import './Login.css';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -32,7 +33,9 @@ const Login = () => {
     };
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
@@ -52,8 +55,7 @@ const Login = () => {
     if (window.google) {
       window.google.accounts.id.prompt();
     } else {
-      // Fallback - redirect to backend Google auth
-      window.location.href = `${process.env.REACT_APP_API_URL || 'https://b1-flyer-sofi-backend.onrender.com'}/api/auth/google`;
+      setError('Google Sign-In לא זמין כרגע');
     }
   };
 
@@ -216,190 +218,6 @@ const Login = () => {
           </p>
         </div>
       </div>
-
-      <style jsx>{`
-        .login-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 20px;
-        }
-        
-        .login-card {
-          background: white;
-          border-radius: 10px;
-          padding: 40px;
-          width: 100%;
-          max-width: 400px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .login-header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        
-        .login-header h1 {
-          color: #333;
-          margin-bottom: 10px;
-          font-size: 2em;
-        }
-        
-        .login-header p {
-          color: #666;
-          margin: 0;
-        }
-
-        .google-button {
-          width: 100%;
-          padding: 12px 20px;
-          background: white;
-          border: 2px solid #ddd;
-          border-radius: 5px;
-          font-size: 16px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          transition: all 0.3s;
-          font-weight: 500;
-          color: #333;
-        }
-
-        .google-button:hover:not(:disabled) {
-          background: #f8f9fa;
-          border-color: #ccc;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .google-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .google-icon {
-          width: 20px;
-          height: 20px;
-        }
-
-        .divider {
-          display: flex;
-          align-items: center;
-          margin: 25px 0;
-        }
-
-        .divider::before,
-        .divider::after {
-          content: '';
-          flex: 1;
-          border-bottom: 1px solid #ddd;
-        }
-
-        .divider span {
-          padding: 0 15px;
-          color: #999;
-          font-size: 14px;
-        }
-        
-        .login-tabs {
-          display: flex;
-          margin-bottom: 30px;
-          border-bottom: 1px solid #eee;
-        }
-        
-        .tab {
-          flex: 1;
-          padding: 10px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          border-bottom: 2px solid transparent;
-          transition: all 0.3s;
-        }
-        
-        .tab.active {
-          border-bottom-color: #667eea;
-          color: #667eea;
-          font-weight: bold;
-        }
-        
-        .form-group {
-          margin-bottom: 20px;
-        }
-        
-        .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-          color: #333;
-        }
-        
-        .form-group input {
-          width: 100%;
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 5px;
-          font-size: 16px;
-          transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus {
-          outline: none;
-          border-color: #667eea;
-        }
-        
-        .error-message {
-          background: #fee;
-          color: #c33;
-          padding: 10px;
-          border-radius: 5px;
-          margin-bottom: 20px;
-          text-align: center;
-        }
-        
-        .submit-button {
-          width: 100%;
-          padding: 12px;
-          background: #667eea;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-        
-        .submit-button:hover:not(:disabled) {
-          background: #5a67d8;
-        }
-        
-        .submit-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-        
-        .login-footer {
-          text-align: center;
-          margin-top: 20px;
-        }
-        
-        .link-button {
-          background: none;
-          border: none;
-          color: #667eea;
-          cursor: pointer;
-          text-decoration: underline;
-          margin-right: 5px;
-        }
-        
-        .link-button:hover {
-          color: #5a67d8;
-        }
-      `}</style>
     </div>
   );
 };
