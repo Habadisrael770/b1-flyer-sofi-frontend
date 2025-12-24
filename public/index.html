@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="description" content="B1 Flyer SOFI - מערכת יצירת פלייר חכמה בבינה מלאכותית" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Meta Tags for SEO -->
+    <meta name="keywords" content="פלייר, עיצוב, בינה מלאכותית, שיווק דיגיטל, עסקים, חנויות" />
+    <meta name="author" content="B1 Flyer SOFI Team" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="B1 Flyer SOFI - יצירת פלייר חכמה" />
+    <meta property="og:description" content="המערכת המתקדמת ביותר ליצירת פלייר מקצועיים בבינה מלאכותית" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
+    <meta property="og:url" content="https://b1flyer.com" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="B1 Flyer SOFI - יצירת פלייר חכמה" />
+    <meta name="twitter:description" content="המערכת המתקדמת ביותר ליצירת פלייר מקצועיים בבינה מלאכותית" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/twitter-image.png" />
+    
+    <!-- Favicon variations -->
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="%PUBLIC_URL%/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="%PUBLIC_URL%/android-chrome-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    
+    <!-- PWA Meta -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="B1 Flyer SOFI" />
+    
+    <!-- Performance Hints -->
+    <link rel="dns-prefetch" href="https://api.openai.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://api.b1flyer.com" />
+    
+    <title>B1 Flyer SOFI - יצירת פלייר חכמה בבינה מלאכותית</title>
+    
+    <!-- Critical CSS -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Heebo', 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        direction: rtl;
+        background-color: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+      }
+      
+      #root {
+        min-height: 100vh;
+      }
+      
+      .loading-spinner {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border: 3px solid #e2e8f0;
+        border-radius: 50%;
+        border-top-color: #3b82f6;
+        animation: spin 1s ease-in-out infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .rtl {
+        direction: rtl !important;
+      }
+      
+      .ltr {
+        direction: ltr !important;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-size: 18px;">
+        <h1>JavaScript נדרש</h1>
+        <p>אנא הפעל JavaScript בדפדפן שלך כדי להשתמש במערכת B1 Flyer SOFI</p>
+      </div>
+    </noscript>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: white;
+    ">
+      <div style="text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🚀</div>
+        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">B1 Flyer SOFI</h1>
+        <p style="font-size: 16px; opacity: 0.9; margin-bottom: 32px;">טוען את המערכת החכמה...</p>
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    
+    <!-- Remove loading screen when React loads -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(function() {
+              loadingScreen.remove();
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
