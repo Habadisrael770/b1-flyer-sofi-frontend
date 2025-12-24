@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://b1-flyer-sofi-backend.onrender.com';
 
 // Configure axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -65,35 +65,60 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials) => {
+  const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/auth/login', credentials);
+      const response = await axios.post('/api/auth/login', { email, password });
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       
+      window.location.href = '/products';
       return { success: true, user };
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed';
+      return { success: false, error: message };
+    }
+  };
+
+  const loginWithGoogle = async (credential) => {
+    try {
+      const response = await axios.post('/api/auth/google', { credential });
+      const { token, user } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      
+      window.location.href = '/products';
+      return { success: true, user };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Google login failed';
       throw new Error(message);
     }
   };
 
-  const register = async (userData) => {
+  const register = async (firstName, lastName, email, password) => {
     try {
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await axios.post('/api/auth/register', { 
+        name: `${firstName} ${lastName}`.trim(),
+        email, 
+        password 
+      });
       const { token, user } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        setUser(user);
+        window.location.href = '/products';
+      }
       
       return { success: true, user };
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
-      throw new Error(message);
+      return { success: false, error: message };
     }
   };
 
@@ -123,6 +148,7 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     register,
+    loginWithGoogle,
     logout,
     updateProfile,
     loading
