@@ -18,23 +18,9 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Request to:', config.baseURL + config.url); // Debug log
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Handle 401/403 responses globally
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
     return Promise.reject(error);
   }
 );
@@ -44,7 +30,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initializeAuth = () => {
       const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
       
@@ -52,14 +38,10 @@ export const AuthProvider = ({ children }) => {
         try {
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
-          
-          // Verify token is still valid
-          await axios.get('/api/auth/profile');
         } catch (error) {
-          console.error('Token validation failed:', error);
+          console.error('Failed to parse user:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          setUser(null);
         }
       }
       
@@ -71,16 +53,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Attempting login to:', API_BASE_URL + '/api/auth/login');
       const response = await axios.post('/api/auth/login', { email, password });
+      console.log('Login response:', response.data);
+      
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       
-      window.location.href = '/products';
       return { success: true, user };
     } catch (error) {
+      console.error('Login error:', error);
       const message = error.response?.data?.message || 'Login failed';
       return { success: false, error: message };
     }
@@ -88,16 +73,19 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = async (credential) => {
     try {
+      console.log('Attempting Google login');
       const response = await axios.post('/api/auth/google', { credential });
+      console.log('Google login response:', response.data);
+      
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       
-      window.location.href = '/products';
       return { success: true, user };
     } catch (error) {
+      console.error('Google login error:', error);
       const message = error.response?.data?.message || 'Google login failed';
       throw new Error(message);
     }
@@ -105,22 +93,25 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (firstName, lastName, email, password) => {
     try {
+      console.log('Attempting register to:', API_BASE_URL + '/api/auth/register');
       const response = await axios.post('/api/auth/register', { 
         name: `${firstName} ${lastName}`.trim(),
         email, 
         password 
       });
+      console.log('Register response:', response.data);
+      
       const { token, user } = response.data;
       
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
-        window.location.href = '/products';
       }
       
       return { success: true, user };
     } catch (error) {
+      console.error('Register error:', error);
       const message = error.response?.data?.message || 'Registration failed';
       return { success: false, error: message };
     }
@@ -130,7 +121,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    window.location.href = '/login';
   };
 
   const updateProfile = async (profileData) => {

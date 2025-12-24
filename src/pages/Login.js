@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Login.css';
 
@@ -13,19 +14,30 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { login, register, loginWithGoogle } = useAuth();
+  const { login, register, loginWithGoogle, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/products');
+    }
+  }, [user, navigate]);
 
   const handleGoogleResponse = useCallback(async (response) => {
     setLoading(true);
     setError('');
     try {
-      await loginWithGoogle(response.credential);
+      const result = await loginWithGoogle(response.credential);
+      if (result.success) {
+        navigate('/products');
+      }
     } catch (err) {
       setError('שגיאה בהתחברות עם Google');
     } finally {
       setLoading(false);
     }
-  }, [loginWithGoogle]);
+  }, [loginWithGoogle, navigate]);
 
   // Load Google Sign-In script
   useEffect(() => {
@@ -84,10 +96,15 @@ const Login = () => {
         );
       }
 
-      if (!result.success) {
-        setError(result.error);
+      console.log('Auth result:', result);
+
+      if (result.success) {
+        navigate('/products');
+      } else {
+        setError(result.error || 'שגיאה בהתחברות');
       }
     } catch (err) {
+      console.error('Submit error:', err);
       setError('שגיאה בהתחברות לשרת');
     } finally {
       setLoading(false);
