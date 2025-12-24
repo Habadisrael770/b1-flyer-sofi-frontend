@@ -3,7 +3,10 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Use environment variable or hardcoded production URL
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://b1-flyer-sofi-backend.onrender.com';
+
+console.log('API_BASE_URL:', API_BASE_URL); // Debug log
 
 // Configure axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -15,6 +18,7 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Request to:', config.baseURL + config.url); // Debug log
     return config;
   },
   (error) => {
